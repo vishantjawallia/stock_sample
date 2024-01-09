@@ -1,23 +1,10 @@
 part of graph_detail_view;
 
 // ignore: must_be_immutable
-class _GraphDetailMobile extends StatefulWidget {
+class _GraphDetailMobile extends StatelessWidget {
   final GraphDetailViewModel viewModel;
 
   const _GraphDetailMobile(this.viewModel);
-
-  @override
-  State<_GraphDetailMobile> createState() => _GraphDetailMobileState();
-}
-
-class _GraphDetailMobileState extends State<_GraphDetailMobile> {
-  double minVisibleY = 20.0;
-  double maxVisibleY = 30.0;
-
-  @override
-  void initState() {
-    super.initState();
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -26,13 +13,18 @@ class _GraphDetailMobileState extends State<_GraphDetailMobile> {
         backgroundColor: Palettes.primary,
         leading: const BackButton(color: Palettes.white),
         title: Text(
-          '${widget.viewModel.obj?.tradingSymbol}' + " (100)",
+          '${viewModel.obj?.tradingSymbol}',
           style: Get.textTheme.titleLarge!.copyWith(color: Palettes.white),
         ),
       ),
-      body: widget.viewModel.isBusy
-          ? const Center(child: CircularProgressIndicator())
-          : SingleChildScrollView(
+      body: StreamBuilder<ChartHistorical>(
+        stream: viewModel.chartIntrday.stream,
+        builder: (context, snapshot) {
+          if (snapshot.data != null) {
+            double low = snapshot.data!.high!.reduce((low, current) => low < current ? low : current);
+            double high = snapshot.data!.high!.reduce((low, current) => low < current ? low : current);
+            double price = snapshot.data!.open!.isNotEmpty ? snapshot.data!.open!.last : 0.0;
+            return SingleChildScrollView(
               scrollDirection: Axis.vertical,
               child: Column(
                 children: [
@@ -52,8 +44,8 @@ class _GraphDetailMobileState extends State<_GraphDetailMobile> {
                       ),
                       primaryYAxis: NumericAxis(
                         autoScrollingDelta: 10,
-                        minimum: widget.viewModel.lowest - 1,
-                        maximum: widget.viewModel.highest + 1,
+                        minimum: low - 1,
+                        maximum: high + 1,
                       ),
                       onZooming: (ZoomPanArgs args) {
                         // minVisibleY = args.axis!.rangeController!.end;
@@ -61,7 +53,7 @@ class _GraphDetailMobileState extends State<_GraphDetailMobile> {
                       },
                       series: <CandleSeries>[
                         CandleSeries<CandleData, DateTime>(
-                          dataSource: generateCandleData(widget.viewModel.chart!),
+                          dataSource: generateCandleData(snapshot.data!),
                           xValueMapper: (CandleData candle, _) => candle.date,
                           lowValueMapper: (CandleData candle, _) => candle.low,
                           highValueMapper: (CandleData candle, _) => candle.high,
@@ -81,7 +73,7 @@ class _GraphDetailMobileState extends State<_GraphDetailMobile> {
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
                         Text(
-                          'Stock Price:- 100',
+                          'Stock Price:- $price',
                           style: Get.textTheme.titleLarge!.copyWith(color: Palettes.basic),
                         ),
                         Container(
@@ -96,7 +88,7 @@ class _GraphDetailMobileState extends State<_GraphDetailMobile> {
                               ),
                               borderRadius: BorderRadius.circular(12)),
                           child: TextField(
-                            controller: widget.viewModel.valueController,
+                            controller: viewModel.valueController,
                             textAlign: TextAlign.center,
                             inputFormatters: [
                               FilteringTextInputFormatter.allow(RegExp(r'^\d{0,2}$')),
@@ -116,7 +108,7 @@ class _GraphDetailMobileState extends State<_GraphDetailMobile> {
                           // mainAxisAlignment: MainAxisAlignment.end,
                           children: <Widget>[
                             ElevatedButton(
-                              onPressed: widget.viewModel.buyStockHanlder,
+                              onPressed: viewModel.buyStockHanlder,
                               style: ButtonStyle(
                                 backgroundColor: MaterialStateProperty.all(Palettes.green),
                               ),
@@ -127,7 +119,7 @@ class _GraphDetailMobileState extends State<_GraphDetailMobile> {
                             ),
                             const SizedBox(width: 14.0),
                             ElevatedButton(
-                              onPressed: widget.viewModel.sellStockHanlder,
+                              onPressed: viewModel.sellStockHanlder,
                               style: ButtonStyle(
                                 backgroundColor: MaterialStateProperty.all(Palettes.primary),
                               ),
@@ -143,7 +135,14 @@ class _GraphDetailMobileState extends State<_GraphDetailMobile> {
                   )
                 ],
               ),
-            ),
+            );
+          } else {
+            return const Center(
+              child: CircularProgressIndicator(),
+            );
+          }
+        },
+      ),
     );
   }
 }

@@ -7,6 +7,7 @@ import 'package:stock_sample/views/dashboard/models/postion.dart';
 import 'package:stock_sample/views/dashboard/models/trades.dart';
 
 import '../../../api/api_reference.dart';
+import '../../graph_detail/models/chart_historical.dart';
 import '../models/fund_limit.dart';
 import '../models/ledger.dart';
 
@@ -75,5 +76,29 @@ class DashboardService {
     }
     return data;
   }
+
+  /* -------------------------------- @postChartIntraday ------------------------------- */
+  Future<ChartHistorical?> postChartIntraday(String securityId) async {
+    ChartHistorical? data;
+
+    Map<String, dynamic> body = {
+      "securityId": securityId,
+      "exchangeSegment": "NSE_EQ",
+      "instrument": "EQUITY",
+    };
+
+    final res = await ApiReference.apiPost('$baseUrl/charts/intraday', body);
+    if (res.success!) {
+      try {
+        data = ChartHistorical.fromJson(res.data);
+        log(data.toString());
+      } catch (e) {
+        log(e.toString());
+        log(e.runtimeType.toString());
+      }
+    } else {
+      log(res.msg.toString());
+    }
+    return data;
+  }
 }
- 

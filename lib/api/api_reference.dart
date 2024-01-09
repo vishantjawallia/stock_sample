@@ -52,6 +52,7 @@ class ApiReference {
         contentType: "application/json",
         headers: headers,
         receiveTimeout: const Duration(seconds: 3),
+        persistentConnection: true,
       );
       Response response = await dio.post(
         '$url',

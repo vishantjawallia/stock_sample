@@ -39,7 +39,7 @@ class _DashboardMobile extends StatelessWidget {
                     child: ElevatedButton(
                       onPressed: viewModel.closeAllHandler,
                       style: ButtonStyle(
-                        backgroundColor: MaterialStateProperty.all(Palettes.primary),
+                        backgroundColor: MaterialStateProperty.all(viewModel.investPrice > 0 ? Palettes.primary : Palettes.grey),
                       ),
                       child: Text(
                         'Close all',
@@ -78,62 +78,72 @@ class _DashboardMobile extends StatelessWidget {
     );
   }
 
-  ListView _orderListing() {
-    return ListView.builder(
-      physics: const NeverScrollableScrollPhysics(),
-      padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 18),
-      shrinkWrap: true,
-      itemCount: viewModel.trades.length,
-      itemBuilder: (context, i) {
-        return Container(
-          margin: const EdgeInsets.symmetric(vertical: 8),
-          child: Material(
-            borderRadius: BorderRadius.circular(8),
-            color: Colors.white,
-            elevation: 5,
-            child: InkWell(
+  Widget _orderListing() {
+    if (viewModel.trades.isNotEmpty) {
+      return ListView.builder(
+        physics: const NeverScrollableScrollPhysics(),
+        padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 18),
+        shrinkWrap: true,
+        itemCount: viewModel.trades.length,
+        itemBuilder: (context, i) {
+          return Container(
+            margin: const EdgeInsets.symmetric(vertical: 8),
+            child: Material(
               borderRadius: BorderRadius.circular(8),
-              onTap: () => viewModel.singlestockHandler(viewModel.trades[i]),
-              child: Padding(
-                padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.only(top: 2, bottom: 4),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(
-                            viewModel.trades[i].tradingSymbol!,
-                            style: Get.textTheme.titleMedium!.copyWith(color: Palettes.basic, fontWeight: FontWeight.w500),
-                          ),
-                          Text(
-                            viewModel.trades[i].tradedPrice.toString(),
-                            style: Get.textTheme.titleLarge!.copyWith(color: Palettes.basic, fontWeight: FontWeight.w500),
-                          ),
-                        ],
+              color: Colors.white,
+              elevation: 5,
+              child: InkWell(
+                borderRadius: BorderRadius.circular(8),
+                onTap: () => viewModel.singlestockHandler(viewModel.trades[i]),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.only(top: 2, bottom: 4),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              viewModel.trades[i].tradingSymbol!,
+                              style: Get.textTheme.titleMedium!.copyWith(color: Palettes.basic, fontWeight: FontWeight.w500),
+                            ),
+                            Text(
+                              viewModel.trades[i].tradedPrice.toString(),
+                              style: Get.textTheme.titleLarge!.copyWith(color: Palettes.basic, fontWeight: FontWeight.w500),
+                            ),
+                          ],
+                        ),
                       ),
-                    ),
-                    Container(
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(4),
-                        color: viewModel.trades[i].transactionType == "BUY" ? Colors.blue : Colors.red,
+                      Container(
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(4),
+                          color: viewModel.trades[i].transactionType == "BUY" ? Colors.blue : Colors.red,
+                        ),
+                        padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
+                        child: Text(
+                          viewModel.trades[i].transactionType!,
+                          style: Get.textTheme.bodyLarge!.copyWith(color: Palettes.white, fontWeight: FontWeight.w500),
+                        ),
                       ),
-                      padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
-                      child: Text(
-                        viewModel.trades[i].transactionType!,
-                        style: Get.textTheme.bodyLarge!.copyWith(color: Palettes.white, fontWeight: FontWeight.w500),
-                      ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
             ),
-          ),
-        );
-      },
-    );
+          );
+        },
+      );
+    } else {
+      return Padding(
+        padding: const EdgeInsets.only(top: 16),
+        child: Text(
+          'Postion not Found !',
+          style: Get.textTheme.titleMedium!.copyWith(color: Palettes.basicShade400, fontWeight: FontWeight.normal),
+        ),
+      );
+    }
   }
 
   Material _cardTile() {
@@ -167,11 +177,11 @@ class _DashboardMobile extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: <Widget>[
                   Text(
-                    viewModel.investPrice.toString() ?? '4,000.00',
+                    viewModel.investPrice.toString(),
                     style: Get.textTheme.displayLarge!.copyWith(color: Palettes.basic),
                   ),
                   Text(
-                    '5,000.00',
+                    viewModel.investPrice.toString(),
                     style: Get.textTheme.displayLarge!.copyWith(color: Palettes.basic),
                   ),
                 ],
@@ -196,7 +206,7 @@ class _DashboardMobile extends StatelessWidget {
                     style: Get.textTheme.headlineMedium?.copyWith(color: Palettes.basicShade400),
                   ),
                   Text(
-                    '+1,000.00',
+                    viewModel.plValue.toString(),
                     style: Get.textTheme.headlineMedium?.copyWith(color: Palettes.green),
                   ),
                 ],
@@ -209,53 +219,63 @@ class _DashboardMobile extends StatelessWidget {
   }
 
   _postionListing() {
-    return ListView.builder(
-      physics: const NeverScrollableScrollPhysics(),
-      padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 18),
-      shrinkWrap: true,
-      itemCount: viewModel.postion.length,
-      itemBuilder: (context, i) {
-        return Container(
-          margin: const EdgeInsets.symmetric(vertical: 8),
-          child: Material(
-            borderRadius: BorderRadius.circular(8),
-            color: Colors.white,
-            elevation: 5,
-            child: InkWell(
+    if (viewModel.postion.isNotEmpty) {
+      return ListView.builder(
+        physics: const NeverScrollableScrollPhysics(),
+        padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 18),
+        shrinkWrap: true,
+        itemCount: viewModel.postion.length,
+        itemBuilder: (context, i) {
+          return Container(
+            margin: const EdgeInsets.symmetric(vertical: 8),
+            child: Material(
               borderRadius: BorderRadius.circular(8),
-              onTap: () => viewModel.singlestockHandler(viewModel.trades[i]),
-              child: Padding(
-                padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.only(top: 2, bottom: 3),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(
-                            viewModel.postion[i].tradingSymbol!,
-                            style: Get.textTheme.titleMedium!.copyWith(color: Palettes.basic, fontWeight: FontWeight.w500),
-                          ),
-                          Text(
-                            viewModel.postion[i].dayBuyValue.toString(),
-                            style: Get.textTheme.titleLarge!.copyWith(color: Palettes.basic, fontWeight: FontWeight.w500),
-                          ),
-                        ],
+              color: Colors.white,
+              elevation: 5,
+              child: InkWell(
+                borderRadius: BorderRadius.circular(8),
+                onTap: () => viewModel.singlestockHandler(viewModel.trades[i]),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.only(top: 2, bottom: 3),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              viewModel.postion[i].tradingSymbol!,
+                              style: Get.textTheme.titleMedium!.copyWith(color: Palettes.basic, fontWeight: FontWeight.w500),
+                            ),
+                            Text(
+                              viewModel.postion[i].dayBuyValue.toString(),
+                              style: Get.textTheme.titleLarge!.copyWith(color: Palettes.basic, fontWeight: FontWeight.w500),
+                            ),
+                          ],
+                        ),
                       ),
-                    ),
-                    Text(
-                      'hello',
-                      style: Get.textTheme.titleMedium!.copyWith(color: Palettes.basicShade400, fontWeight: FontWeight.normal),
-                    ),
-                  ],
+                      Text(
+                        'hello',
+                        style: Get.textTheme.titleMedium!.copyWith(color: Palettes.basicShade400, fontWeight: FontWeight.normal),
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ),
-          ),
-        );
-      },
-    );
+          );
+        },
+      );
+    } else {
+      return Padding(
+        padding: const EdgeInsets.only(top: 16),
+        child: Text(
+          'Postion not Found !',
+          style: Get.textTheme.titleMedium!.copyWith(color: Palettes.basicShade400, fontWeight: FontWeight.normal),
+        ),
+      );
+    }
   }
 }

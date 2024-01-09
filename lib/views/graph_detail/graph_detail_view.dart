@@ -27,7 +27,12 @@ class GraphDetailView extends StatelessWidget {
   Widget build(BuildContext context) {
     return ViewModelBuilder<GraphDetailViewModel>.reactive(
       viewModelBuilder: () => GraphDetailViewModel(obj),
-      onViewModelReady: (viewModel) {},
+      onViewModelReady: (viewModel) {
+        viewModel.startRealTimeApi();
+      },
+      onDispose: (viewModel) {
+        viewModel.chartIntrday.close();
+      },
       builder: (context, viewModel, child) {
         return ScreenTypeLayout.builder(
           mobile: (_) => _GraphDetailMobile(viewModel),

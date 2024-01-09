@@ -5,13 +5,16 @@ import 'package:stacked/stacked.dart';
 import 'package:stock_sample/views/dashboard/models/ledger.dart';
 import 'package:stock_sample/views/dashboard/models/trades.dart';
 import 'package:stock_sample/views/graph_detail/graph_detail_view.dart';
+import 'package:stock_sample/views/graph_detail/service/graph_detail_service.dart';
 
+import '../graph_detail/models/chart_historical.dart';
 import 'models/fund_limit.dart';
 import 'models/postion.dart';
 import 'service/dashboard_service.dart';
 
 class DashboardViewModel extends BaseViewModel {
   final service = DashboardService();
+  // final gservice = GraphDetailService();
 
   DashboardViewModel() {
     loadItems();
@@ -25,6 +28,7 @@ class DashboardViewModel extends BaseViewModel {
   FundLimit? fundLimit;
   double investPrice = 0.0;
   double currentPrice = 0.0;
+  double plValue = 0.0;
 
   // Add ViewModel specific code here
   Future<void> loadItems() async {
@@ -59,6 +63,18 @@ class DashboardViewModel extends BaseViewModel {
 
   void singlestockHandler(Trades trade) {
     log(trade.toString());
-    Get.to(() =>  GraphDetailView(obj:trade));
+    Get.to(() => GraphDetailView(obj: trade));
   }
+
+  // void startRealTimeApi() async {
+  //   try {
+  //     while (true) {
+  //       ChartHistorical? chartIntraday = await service.postChartIntraday('${obj!.securityId}');
+  //       chartIntrday.add(chartIntraday!);
+  //       await Future.delayed(const Duration(seconds: 2));
+  //     }
+  //   } catch (e) {
+  //     log('Error: $e');
+  //   }
+  // }
 }
