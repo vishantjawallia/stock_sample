@@ -1,15 +1,18 @@
+// ignore_for_file: unused_element
+
 part of dashboard_view;
 
-// ignore: must_be_immutable
 class _DashboardTablet extends StatelessWidget {
   final DashboardViewModel viewModel;
 
-  _DashboardTablet(this.viewModel);
+  const _DashboardTablet(this.viewModel);
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Center(child: Text('DashboardTablet')),
+    return const Scaffold(
+      body: Center(
+        child: Text('Dashboard Tablet'),
+      ),
     );
   }
 }

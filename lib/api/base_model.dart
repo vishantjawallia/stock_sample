@@ -1,7 +1,7 @@
-class BaseModel<T> {
+class BaseModel {
   final String? msg;
   final bool? success;
-  final T? data;
+  final dynamic data;
   const BaseModel({
     this.msg,
     this.success,
@@ -10,7 +10,7 @@ class BaseModel<T> {
   BaseModel copyWith({
     String? msg,
     bool? success,
-    T? data,
+    dynamic data,
   }) {
     return BaseModel(
       msg: msg ?? this.msg,
@@ -37,7 +37,7 @@ class BaseModel<T> {
               msg:$msg,
               success:$success,
               data:$data
-    ) ''';
+            ) ''';
   }
 
   @override
